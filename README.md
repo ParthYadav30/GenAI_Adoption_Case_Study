@@ -19,15 +19,23 @@ This case study explores how companies across the globe are adopting GenAI tools
 - Training investment
 
 ---
+### Importing the Dataset
 ```python
 import pandas as pd
 df = pd.read_csv(r"C:\Users\Parth Yadav\Downloads\archive (8)\Enterprise_GenAI_Adoption_Impact.csv")
 df.head(5)
+```
+### Data Cleaning
+```python
 print(df.isnull().sum())
 print(df.duplicated().sum())
 df.columns.str.strip()
 df.replace({'â€”': '-', 'â€™': "'", 'â€œ': '"', 'â€': '"'}, regex=True, inplace=True)
+df['GenAI Tool'] = df['GenAI Tool'].str.replace(r'\bgrok\b', 'Grok', case=False, regex=True)
 df.head(20)
+```
+### Sentiment Categorization
+```python
 from sklearn.feature_extraction.text import CountVectorizer
 
 sentiments = df['Employee Sentiment'].astype(str).str.lower()
@@ -71,9 +79,9 @@ def map_sentiment_to_category(text):
 
 
 df[['Employee Sentiment', 'Sentiment_Category']].head()
-
-df['GenAI Tool'] = df['GenAI Tool'].str.replace(r'\bgrok\b', 'Grok', case=False, regex=True)
-
+```
+### Final Checks
+```python
 uncategorized = df[df['Sentiment_Category'].isnull() | (df['Sentiment_Category'] == 'Uncategorized')]
 
 print(f"Total Uncategorized Sentiments: {len(uncategorized)}")
@@ -81,7 +89,11 @@ uncategorized[['Employee Sentiment', 'Sentiment_Category']].head(10)
 df.to_csv("cleaned_genai1.csv", index=False, encoding='utf-8')
 ```
 ### 📁 Dataset Structure
+```sql
+CREATE DATABASE Genai_db;
 
+DROP TABLE IF EXISTS genai_adoption;
+```
 ```sql
 CREATE TABLE genai_adoption (
     company_name VARCHAR(255),
