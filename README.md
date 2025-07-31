@@ -3,9 +3,10 @@
 When I saw a reel saying *“GenAI will steal all your jobs soon”*, it sparked a question in my head — is that really happening?
 
 So I rolled up my sleeves and built a full-stack data case study using:
-- ✅ **SQL** for data cleaning and analysis  
+- ✅ **Python** for data preparation
+- ✅ **SQL** for analysis  
 - ✅ **Power BI** for interactive dashboards  
-- ✅ A self-made dataset tracking GenAI adoption across industries and countries
+- ✅ Dataset of 100000 Values from **Kaggle**
 
 ---
 
@@ -18,7 +19,67 @@ This case study explores how companies across the globe are adopting GenAI tools
 - Training investment
 
 ---
+```python
+import pandas as pd
+df = pd.read_csv(r"C:\Users\Parth Yadav\Downloads\archive (8)\Enterprise_GenAI_Adoption_Impact.csv")
+df.head(5)
+print(df.isnull().sum())
+print(df.duplicated().sum())
+df.columns.str.strip()
+df.replace({'â€”': '-', 'â€™': "'", 'â€œ': '"', 'â€': '"'}, regex=True, inplace=True)
+df.head(20)
+from sklearn.feature_extraction.text import CountVectorizer
 
+sentiments = df['Employee Sentiment'].astype(str).str.lower()
+
+vectorizer = CountVectorizer(stop_words='english', max_features=1000)  # top 1000 keywords
+X = vectorizer.fit_transform(sentiments)
+keywords = vectorizer.get_feature_names_out()
+
+import numpy as np
+word_freq = np.asarray(X.sum(axis=0)).flatten()
+top_keywords = sorted(zip(keywords, word_freq), key=lambda x: x[1], reverse=True)
+
+for word, freq in top_keywords[:50]:
+    print(f"{word}: {freq}")
+
+def map_sentiment_to_category(text):
+    text = text.lower()
+    positive_keywords = ['faster', 'efficient', 'improved', 'reduce', 'tasks', 'fun', 'ai']
+    dynamic_keywords = ['roles', 'rotations', 'shifted', 'transition', 'new', 'smoother']
+    negative_keywords = ['concern', 'replace', 'job', 'soon', 'scary', 'anxiety', 'struggling']
+    learning_keywords = ['learning', 'curve', 'steep', 'adapted', 'helped', 'webinars']
+    culture_keywords = ['collaboration', 'communicate', 'internal', 'hr', 'meetings', 'newsletter', 'townhalls']
+    has_positive = any(word in text for word in positive_keywords)
+    has_negative = any(word in text for word in negative_keywords)
+    if has_positive and has_negative:
+        return 'Mixed Impact'
+    elif has_positive:
+        return 'AI-Driven Productivity'
+    elif any(word in text for word in dynamic_keywords):
+        return 'Changing Job Dynamics'
+    elif has_negative:
+        return 'Job Security Anxiety'
+    elif any(word in text for word in learning_keywords):
+        return 'Learning & Adaptation'
+    elif any(word in text for word in culture_keywords):
+        return 'Communication & Culture Shift'
+    else:
+        return 'Uncategorized'
+
+ df['Sentiment_Category'] = df['Employee Sentiment'].astype(str).apply(map_sentiment_to_category)
+
+
+df[['Employee Sentiment', 'Sentiment_Category']].head()
+
+df['GenAI Tool'] = df['GenAI Tool'].str.replace(r'\bgrok\b', 'Grok', case=False, regex=True)
+
+uncategorized = df[df['Sentiment_Category'].isnull() | (df['Sentiment_Category'] == 'Uncategorized')]
+
+print(f"Total Uncategorized Sentiments: {len(uncategorized)}")
+uncategorized[['Employee Sentiment', 'Sentiment_Category']].head(10)
+df.to_csv("cleaned_genai1.csv", index=False, encoding='utf-8')
+```
 ### 📁 Dataset Structure
 
 ```sql
