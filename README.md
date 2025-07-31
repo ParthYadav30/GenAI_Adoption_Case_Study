@@ -113,7 +113,7 @@ CREATE TABLE genai_adoption (
 SELECT * FROM genai_adoption;
 ```
 
-### 1. WHAT IS THE AVERAGE PRODUCTIVITY CHANGE PER COUNTRY BROKEM DOWN BY YEAR & SENTIMENT CATEGORY
+### 1. What Is The Average Productivity Change Per Country Broken Down By Year & Sentiment Category
 ```sql
 WITH country_sentiment_productivity AS (
     SELECT
